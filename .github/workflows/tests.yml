@@ -41,3 +41,4 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm i -g lighthouse
+    - run: composer run test
