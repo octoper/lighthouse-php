@@ -4,7 +4,7 @@
 [![Packagist Downloads](https://img.shields.io/packagist/dm/octoper/lighthouse-php)](https://packagist.org/packages/octoper/lighthouse-php)
 [![License](https://img.shields.io/github/license/octoper/lighthouse-php)](LICENSE.md)
 
-**This repository is a fork of** [dzava/lighthouse-php](https://github.com/dzava/lighthouse-php) **repository**
+**This package is a fork of** [dzava/lighthouse-php](https://github.com/dzava/lighthouse-php)
 
 This package provides a PHP interface for [Google Lighthouse](https://github.com/GoogleChrome/lighthouse).
 
