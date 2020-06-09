@@ -95,7 +95,7 @@ function createLighthouseConfig($categories)
 it('can run only one audit', function () {
     $report = $this->lighthouse
         ->performance()
-        ->audit('http://example.com');
+        ->audit('https://octoper.me');
 
     assertReportIncludesCategory($report, 'Performance');
     assertReportDoesNotIncludeCategory($report, 'Progressive Web App');
@@ -118,21 +118,21 @@ it('can run all audits', function () {
 test('updates the config when a category is added or removed', function () {
     $report = $this->lighthouse
         ->performance()
-        ->audit('http://example.com');
+        ->audit('https://octoper.me');
 
     assertReportIncludesCategory($report, 'Performance');
     assertReportDoesNotIncludeCategory($report, 'Accessibility');
 
     $report = $this->lighthouse
         ->accessibility()
-        ->audit('http://example.com');
+        ->audit('https://octoper.me');
 
     assertReportIncludesCategory($report, 'Performance');
     assertReportIncludesCategory($report, 'Accessibility');
 
     $report = $this->lighthouse
         ->accessibility(false)
-        ->audit('http://example.com');
+        ->audit('https://octoper.me');
 
     assertReportIncludesCategory($report, 'Performance');
     assertReportDoesNotIncludeCategory($report, 'Accessibility');
@@ -146,7 +146,7 @@ test('does not override the user provided config', function () {
         ->withConfig($configPath)
         ->accessibility()
         ->performance(false)
-        ->audit('http://example.com');
+        ->audit('https://octoper.me');
 
     file_put_contents('/tmp/report', $report);
 
@@ -181,7 +181,7 @@ test('outputs_both_json_and_html_reports_at_the_same_time', function () {
     $this->lighthouse
         ->setOutput('/tmp/example', ['json', 'html'])
             ->seo()
-            ->audit('http://example.com');
+            ->audit('https://octoper.me');
 
     assertFileExists('/tmp/example.report.html');
     assertFileExists('/tmp/example.report.json');
@@ -191,7 +191,7 @@ test('passes_the_http_headers_to_the_requests', function () {
     $report = $this->lighthouse
             ->setHeaders(['Cookie' => 'monster:blue', 'Authorization' => 'Bearer: ring'])
             ->performance()
-            ->audit('http://example.com');
+            ->audit('https://octoper.me');
 
     assertReportContainsHeader($report, 'Cookie', 'monster:blue');
     assertReportContainsHeader($report, 'Authorization', 'Bearer: ring');
