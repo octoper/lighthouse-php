@@ -1,9 +1,8 @@
 # Lighthouse
 
-![Packagist Version](https://img.shields.io/packagist/v/octoper/lighthouse-php)
-![Packagist Downloads](https://img.shields.io/packagist/dm/octoper/lighthouse-php)
-![License](https://img.shields.io/github/license/octoper/lighthouse-php)
-
+[![Packagist Version](https://img.shields.io/packagist/v/octoper/lighthouse-php)](https://packagist.org/packages/octoper/lighthouse-php)
+[![Packagist Downloads](https://img.shields.io/packagist/dm/octoper/lighthouse-php)](https://packagist.org/packages/octoper/lighthouse-php)
+[![License](https://img.shields.io/github/license/octoper/lighthouse-php)](LICENSE.md)
 
 **This repository is a fork of** [dzava/lighthouse-php](https://github.com/dzava/lighthouse-php) **repository**
 
