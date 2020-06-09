@@ -1,0 +1,10 @@
+vendor/
+composer.lock
+node_modules
+package.json
+yarn.lock
+config.js
+report.json
+.php_cs.cache
+.DS_Store
+.idea
