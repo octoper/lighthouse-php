@@ -4,7 +4,7 @@ use Octoper\Lighthouse\Exceptions\AuditFailedException;
 use Octoper\Lighthouse\Lighthouse;
 
 beforeEach(function () {
-    $this->lighthouse = (new Lighthouse())->setLighthousePath('/usr/bin/lighthouse');
+    $this->lighthouse = (new Lighthouse())->setLighthousePath('./node_modules/.bin/lighthouse');
 });
 
 function assertReportIncludesCategory($report, $expectedCategory)
