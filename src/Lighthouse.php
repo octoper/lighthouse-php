@@ -40,8 +40,10 @@ class Lighthouse
 
     /**
      * @param string $url
-     * @return string
+     *
      * @throws AuditFailedException
+     *
+     * @return string
      */
     public function audit(string $url): string
     {
@@ -49,7 +51,7 @@ class Lighthouse
 
         $process->setTimeout($this->timeout)->run();
 
-        if (! $process->isSuccessful()) {
+        if (!$process->isSuccessful()) {
             throw new AuditFailedException($url, $process->getErrorOutput());
         }
 
@@ -57,9 +59,10 @@ class Lighthouse
     }
 
     /**
-     * Enable the accessibility audit
+     * Enable the accessibility audit.
      *
      * @param bool $enable
+     *
      * @return $this
      */
     public function accessibility(bool $enable = true): self
@@ -70,9 +73,10 @@ class Lighthouse
     }
 
     /**
-     * Enable the best practices audit
+     * Enable the best practices audit.
      *
      * @param bool $enable
+     *
      * @return $this
      */
     public function bestPractices(bool $enable = true): self
@@ -83,9 +87,10 @@ class Lighthouse
     }
 
     /**
-     * Enable the best performance audit
+     * Enable the best performance audit.
      *
      * @param bool $enable
+     *
      * @return $this
      */
     public function performance(bool $enable = true): self
@@ -96,9 +101,10 @@ class Lighthouse
     }
 
     /**
-     * Enable the progressive web app audit
+     * Enable the progressive web app audit.
      *
      * @param bool $enable
+     *
      * @return $this
      */
     public function pwa(bool $enable = true): self
@@ -109,9 +115,10 @@ class Lighthouse
     }
 
     /**
-     * Enable the search engine optimization audit
+     * Enable the search engine optimization audit.
      *
      * @param bool $enable
+     *
      * @return $this
      */
     public function seo(bool $enable = true): self
@@ -122,7 +129,7 @@ class Lighthouse
     }
 
     /**
-     * Disables Device Emulator
+     * Disables Device Emulator.
      *
      * @return $this
      */
@@ -149,6 +156,7 @@ class Lighthouse
 
     /**
      * @param string $path
+     *
      * @return $this
      */
     public function withConfig(string $path): self
@@ -164,8 +172,9 @@ class Lighthouse
     }
 
     /**
-     * @param string $path
+     * @param string            $path
      * @param null|string|array $format
+     *
      * @return $this
      */
     public function setOutput($path, $format = null): self
@@ -176,7 +185,7 @@ class Lighthouse
             $format = $this->guessOutputFormatFromFile($path);
         }
 
-        if (! is_array($format)) {
+        if (!is_array($format)) {
             $format = [$format];
         }
 
@@ -191,6 +200,7 @@ class Lighthouse
 
     /**
      * @param string $format
+     *
      * @return $this
      */
     public function setDefaultFormat(string $format): self
@@ -202,6 +212,7 @@ class Lighthouse
 
     /**
      * @param string $path
+     *
      * @return $this
      */
     public function setNodePath(string $path): self
@@ -213,6 +224,7 @@ class Lighthouse
 
     /**
      * @param string $path
+     *
      * @return $this
      */
     public function setLighthousePath(string $path): self
@@ -224,6 +236,7 @@ class Lighthouse
 
     /**
      * @param string $path
+     *
      * @return $this
      */
     public function setChromePath(string $path): self
@@ -234,9 +247,10 @@ class Lighthouse
     }
 
     /**
-     * Set the flags to pass to the spawned Chrome instance
+     * Set the flags to pass to the spawned Chrome instance.
      *
      * @param array|string $flags
+     *
      * @return $this
      */
     public function setChromeFlags($flags): self
@@ -275,7 +289,8 @@ class Lighthouse
 
     /**
      * @param string $option
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return $this
      */
     public function setOption($option, $value = null): self
@@ -299,6 +314,7 @@ class Lighthouse
 
     /**
      * @param string $url
+     *
      * @return string
      */
     public function getCommand($url): string
@@ -322,10 +338,11 @@ class Lighthouse
     }
 
     /**
-     * Enable or disable a category
+     * Enable or disable a category.
      *
      * @param $category
      * @param bool $enable
+     *
      * @return $this
      */
     protected function setCategory($category, $enable): self
@@ -344,7 +361,7 @@ class Lighthouse
     }
 
     /**
-     * Creates the config file used during the audit
+     * Creates the config file used during the audit.
      *
      * @return $this
      */
@@ -354,12 +371,12 @@ class Lighthouse
         $this->withConfig(stream_get_meta_data($config)['uri']);
         $this->config = $config;
 
-        $options = 'module.exports = ' . json_encode([
-                'extends' => 'lighthouse:default',
-                'settings' => [
-                    'onlyCategories' => $this->categories,
-                ],
-            ]);
+        $options = 'module.exports = '.json_encode([
+            'extends'  => 'lighthouse:default',
+            'settings' => [
+                'onlyCategories' => $this->categories,
+            ],
+        ]);
 
         fwrite($config, $options);
 
@@ -368,7 +385,7 @@ class Lighthouse
 
     /**
      * Convert the options array to an array that can be used
-     * to construct the command arguments
+     * to construct the command arguments.
      *
      * @return array
      */
@@ -380,16 +397,17 @@ class Lighthouse
     }
 
     /**
-     * Guesses the file format
+     * Guesses the file format.
      *
      * @param string $path
+     *
      * @return string
      */
     private function guessOutputFormatFromFile($path): string
     {
         $format = pathinfo($path, PATHINFO_EXTENSION);
 
-        if (! in_array($format, $this->availableFormats)) {
+        if (!in_array($format, $this->availableFormats)) {
             $format = $this->defaultFormat;
         }
 
