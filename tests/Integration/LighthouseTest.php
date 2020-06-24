@@ -4,7 +4,8 @@ use Octoper\Lighthouse\Exceptions\AuditFailedException;
 use Octoper\Lighthouse\Lighthouse;
 
 beforeEach(function () {
-    $this->lighthouse = (new Lighthouse())->setLighthousePath('./node_modules/.bin/lighthouse');
+    $this->lighthouse = (new Lighthouse)
+        ->setLighthousePath('./node_modules/.bin/lighthouse');
 });
 
 it('can run only one audit', function () {

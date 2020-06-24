@@ -39,6 +39,5 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install -g lighthouse
-    - run: which lighthouse
+    - run: npm install
     - run: composer run test

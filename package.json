@@ -1,0 +1,17 @@
+{
+  "name": "lighthouse-php",
+  "version": "0.0.1",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "lighthouse": "^6.0.0"
+  },
+  "private": true,
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/octoper/lighthouse-php/issues"
+  },
+  "homepage": "https://github.com/octoper/lighthouse-php#readme"
+}
