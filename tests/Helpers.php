@@ -32,7 +32,7 @@ function assertReportContainsHeader($report, $name, $value)
 
     $headers = $report['configSettings']['extraHeaders'];
     test()->assertNotNull($headers, 'No extra headers found in report');
-    test()->assertArrayHasKey($name, $headers, "Header '$name' is missing from report. [" . implode($headers, ', ') . ']');
+    test()->assertArrayHasKey($name, $headers, "Header '$name' is missing from report. [".implode($headers, ', ').']');
 
     return test()->assertEquals($value, $headers[$name]);
 }
@@ -59,18 +59,18 @@ function assertFileStartsWith($prefix, $outputPath)
 
 function createLighthouseConfig($categories)
 {
-    if (! is_array($categories)) {
+    if (!is_array($categories)) {
         $categories = [$categories];
     }
 
     $config = tmpfile();
 
-    $r = 'module.exports = ' . json_encode([
-            'extends' => 'lighthouse:default',
-            'settings' => [
-                'onlyCategories' => $categories,
-            ],
-        ]);
+    $r = 'module.exports = '.json_encode([
+        'extends'  => 'lighthouse:default',
+        'settings' => [
+            'onlyCategories' => $categories,
+        ],
+    ]);
 
     fwrite($config, $r);
 
