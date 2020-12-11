@@ -70,7 +70,7 @@ class Lighthouse
 
     /**
      * @param string $option
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return $this
      */
@@ -96,9 +96,9 @@ class Lighthouse
     /**
      * @param string $url
      *
-     * @return string
      * @throws AuditFailedException
      *
+     * @return string
      */
     public function audit(string $url): string
     {
@@ -141,27 +141,28 @@ class Lighthouse
     /**
      * Creates the config file used during the audit.
      *
-     * @return $this
      * @throws Exception
+     *
+     * @return $this
      */
     protected function buildConfig(): self
     {
         $config = tmpfile();
 
         if (!$config) {
-            throw new Exception("Cannot build config file.");
+            throw new Exception('Cannot build config file.');
         }
 
         $this->withConfig(stream_get_meta_data($config)['uri']);
         /** @phpstan-ignore-next-line  */
         $this->config = $config;
 
-        $options = 'module.exports = ' . json_encode([
-                'extends' => 'lighthouse:default',
-                'settings' => [
-                    'onlyCategories' => $this->categories,
-                ],
-            ]);
+        $options = 'module.exports = '.json_encode([
+            'extends'  => 'lighthouse:default',
+            'settings' => [
+                'onlyCategories' => $this->categories,
+            ],
+        ]);
 
         fwrite($config, $options);
 
@@ -212,7 +213,7 @@ class Lighthouse
      * Enable or disable a category.
      *
      * @param string $category
-     * @param bool $enable
+     * @param bool   $enable
      *
      * @return $this
      */
@@ -314,7 +315,7 @@ class Lighthouse
     }
 
     /**
-     * @param string $path
+     * @param string            $path
      * @param null|string|array $format
      *
      * @return $this
@@ -408,9 +409,12 @@ class Lighthouse
 
     /**
      * Set the flags to pass to the spawned Chrome instance.
+     *
      * @param array|string|null $headers
-     * @return $this
+     *
      * @throws JsonException
+     *
+     * @return $this
      */
     public function setHeaders($headers = null): self
     {
@@ -430,6 +434,7 @@ class Lighthouse
 
     /**
      * @param int $timeout
+     *
      * @return $this
      */
     public function setTimeout(int $timeout): self
