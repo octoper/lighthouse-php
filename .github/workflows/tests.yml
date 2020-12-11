@@ -42,7 +42,7 @@ jobs:
         if: "matrix.php >= 8"
 
       - name: Install NodeJS Dependancies
-        run: npm ci
+        run: npm i
 
       - name: Unit Tests
         run: php vendor/bin/pest --colors=always --exclude-group=integration
