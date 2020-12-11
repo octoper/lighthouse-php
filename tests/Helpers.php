@@ -23,7 +23,9 @@ function assertReportDoesNotIncludeCategory($report, $expectedCategory)
         return $category['title'];
     }, $report['categories']);
 
-    return test()->assertNotContains($expectedCategory, $categories);
+    test()->assertNotContains($expectedCategory, $categories);
+
+    return test();
 }
 
 function assertReportContainsHeader($report, $name, $value)
@@ -32,9 +34,11 @@ function assertReportContainsHeader($report, $name, $value)
 
     $headers = $report['configSettings']['extraHeaders'];
     test()->assertNotNull($headers, 'No extra headers found in report');
-    test()->assertArrayHasKey($name, $headers, "Header '$name' is missing from report. [".implode($headers, ', ').']');
+    test()->assertArrayHasKey($name, $headers, "Header '$name' is missing from report. [".implode(', ', $headers).']');
 
-    return test()->assertEquals($value, $headers[$name]);
+    test()->assertEquals($value, $headers[$name]);
+
+    return test();
 }
 
 function removeTempFile($path)

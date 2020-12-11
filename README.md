@@ -1,10 +1,11 @@
 # Lighthouse
 
+[![Tests](https://github.com/octoper/lighthouse-php/workflows/Tests/badge.svg)](https://github.com/octoper/lighthouse-php/actions?query=workflow%3ATests)
+[![StyleCI](https://github.styleci.io/repos/271016017/shield?style=square)](https://github.styleci.io/repos/271016017)
 [![Packagist Version](https://img.shields.io/packagist/v/octoper/lighthouse-php)](https://packagist.org/packages/octoper/lighthouse-php)
 [![Packagist Downloads](https://img.shields.io/packagist/dm/octoper/lighthouse-php)](https://packagist.org/packages/octoper/lighthouse-php)
 [![License](https://img.shields.io/github/license/octoper/lighthouse-php)](LICENSE.md)
-[![Tests](https://github.com/octoper/lighthouse-php/workflows/Tests/badge.svg)](https://github.com/octoper/lighthouse-php/actions?query=workflow%3ATests)
-[![StyleCI](https://github.styleci.io/repos/271016017/shield?style=square)](https://github.styleci.io/repos/271016017)
+
 
 **This package is a fork of** [dzava/lighthouse-php](https://github.com/dzava/lighthouse-php)
 
