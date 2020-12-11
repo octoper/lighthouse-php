@@ -131,14 +131,13 @@ it('can disable a category', function ($category, $method = null) {
 
     $lighthouse->$method(false);
     expect($lighthouse->getCategories())->not()->toContain($category);
-
 })->with('reportCategories', 'emptyHeaders');
 
 it('can set the headers using an array', function () {
     $lighthouse = new MockLighthouse();
 
     $lighthouse->setHeaders([
-        'Cookie' => 'monster=blue',
+        'Cookie'        => 'monster=blue',
         'Authorization' => 'Bearer: ring',
     ]);
 
