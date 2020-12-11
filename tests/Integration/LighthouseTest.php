@@ -89,7 +89,6 @@ test('outputs to a file', function ($outputPath, $content) {
     expect($outputPath)->toBeFile();
 
     assertFileStartsWith($content, $outputPath);
-
 })->with('fileOutputData');
 
 test('outputs both json and html reports at the same time', function () {
