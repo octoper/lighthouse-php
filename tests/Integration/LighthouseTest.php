@@ -78,7 +78,7 @@ test('throws an exception when the audit fails', function () {
         ->audit($url);
 })->throws(AuditFailedException::class);
 
-test('outputs_to_a_file', function ($outputPath, $content) {
+test('outputs to a file', function ($outputPath, $content) {
     removeTempFile($outputPath);
 
     $this->lighthouse
@@ -86,7 +86,8 @@ test('outputs_to_a_file', function ($outputPath, $content) {
              ->seo()
              ->audit('http://example.com');
 
-    $this->assertFileExists($outputPath);
+    expect($outputPath)->toBeFile();
+
     assertFileStartsWith($content, $outputPath);
 })->with('fileOutputData');
 
@@ -99,8 +100,8 @@ test('outputs both json and html reports at the same time', function () {
             ->seo()
             ->audit('http://example.com');
 
-    assertFileExists('/tmp/example.report.html');
-    assertFileExists('/tmp/example.report.json');
+    expect('/tmp/example.report.html')->toBeFile();
+    expect('/tmp/example.report.json')->toBeFile();
 });
 
 test('passes the http headers to the requests', function () {

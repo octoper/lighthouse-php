@@ -2,6 +2,8 @@
 
 namespace Octoper\Lighthouse;
 
+use Exception;
+use JsonException;
 use Octoper\Lighthouse\Exceptions\AuditFailedException;
 use Symfony\Component\Process\Process;
 
@@ -9,33 +11,86 @@ class Lighthouse
 {
     /** @var int */
     protected int $timeout = 60;
+
     /** @var string */
     protected string $nodePath = 'node';
-    /** @var string */
+
+    /** @var string|null */
     protected ?string $chromePath = null;
+
     /** @var string */
     protected string $lighthousePath = 'lighthouse';
-    /** @var string */
+
+    /** @var string|null */
     protected ?string $configPath = null;
 
     /** @var array|string|null */
     protected $config = null;
+
     /** @var array */
     protected array $categories = [];
+
     /** @var array */
     protected array $options = [];
+
     /** @var string */
     protected string $outputFormat = '--output=json';
+
     /** @var array */
     protected array $availableFormats = ['json', 'html'];
+
     /** @var string */
     protected string $defaultFormat = 'json';
+
     /** @var array|string|null */
     protected $headers;
 
     public function __construct()
     {
         $this->setChromeFlags(['--headless', '--disable-gpu', '--no-sandbox']);
+    }
+
+    /**
+     * Set the flags to pass to the spawned Chrome instance.
+     *
+     * @param array|string $flags
+     *
+     * @return $this
+     */
+    public function setChromeFlags($flags): self
+    {
+        if (is_array($flags)) {
+            $flags = implode(' ', $flags);
+        }
+
+        $this->setOption('--chrome-flags', "'$flags'");
+
+        return $this;
+    }
+
+    /**
+     * @param string $option
+     * @param mixed  $value
+     *
+     * @return $this
+     */
+    public function setOption(string $option, $value = null): self
+    {
+        if (($foundIndex = array_search($option, $this->options)) !== false) {
+            $this->options[$foundIndex] = $option;
+
+            return $this;
+        }
+
+        if ($value === null) {
+            $this->options[] = $option;
+        }
+
+        if ($value !== null) {
+            $this->options[$option] = $value;
+        }
+
+        return $this;
     }
 
     /**
@@ -59,6 +114,88 @@ class Lighthouse
     }
 
     /**
+     * @param string $url
+     *
+     * @return string
+     */
+    public function getCommand(string $url): string
+    {
+        if ($this->configPath === null || $this->config !== null) {
+            $this->buildConfig();
+        }
+
+        $command = array_merge([
+            $this->chromePath,
+            $this->nodePath,
+            $this->lighthousePath,
+            $this->outputFormat,
+            $this->headers,
+            '--quiet',
+            "--config-path={$this->configPath}",
+            $url,
+        ], $this->processOptions());
+
+        return implode(' ', array_filter($command));
+    }
+
+    /**
+     * Creates the config file used during the audit.
+     *
+     * @throws Exception
+     *
+     * @return $this
+     */
+    protected function buildConfig(): self
+    {
+        $config = tmpfile();
+
+        if (!$config) {
+            throw new Exception('Cannot build config file.');
+        }
+
+        $this->withConfig(stream_get_meta_data($config)['uri']);
+        /** @phpstan-ignore-next-line  */
+        $this->config = $config;
+
+        $options = 'module.exports = '.json_encode([
+            'extends'  => 'lighthouse:default',
+            'settings' => [
+                'onlyCategories' => $this->categories,
+            ],
+        ]);
+
+        fwrite($config, $options);
+
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return $this
+     */
+    public function withConfig(string $path): self
+    {
+        $this->configPath = $path;
+        $this->config = null;
+
+        return $this;
+    }
+
+    /**
+     * Convert the options array to an array that can be used
+     * to construct the command arguments.
+     *
+     * @return array
+     */
+    protected function processOptions(): array
+    {
+        return array_map(function ($value, $option) {
+            return is_numeric($option) ? $value : "$option=$value";
+        }, $this->options, array_keys($this->options));
+    }
+
+    /**
      * Enable the accessibility audit.
      *
      * @param bool $enable
@@ -68,6 +205,29 @@ class Lighthouse
     public function accessibility(bool $enable = true): self
     {
         $this->setCategory('accessibility', $enable);
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable a category.
+     *
+     * @param string $category
+     * @param bool   $enable
+     *
+     * @return $this
+     */
+    protected function setCategory(string $category, bool $enable): self
+    {
+        $index = array_search($category, $this->categories);
+
+        if ($index !== false) {
+            if ($enable == false) {
+                unset($this->categories[$index]);
+            }
+        } elseif ($enable) {
+            $this->categories[] = $category;
+        }
 
         return $this;
     }
@@ -155,29 +315,12 @@ class Lighthouse
     }
 
     /**
-     * @param string $path
-     *
-     * @return $this
-     */
-    public function withConfig(string $path): self
-    {
-        if ($this->config) {
-            fclose($this->config);
-        }
-
-        $this->configPath = $path;
-        $this->config = null;
-
-        return $this;
-    }
-
-    /**
      * @param string            $path
      * @param null|string|array $format
      *
      * @return $this
      */
-    public function setOutput($path, $format = null): self
+    public function setOutput(string $path, $format = null): self
     {
         $this->setOption('--output-path', $path);
 
@@ -196,6 +339,24 @@ class Lighthouse
         }, $format));
 
         return $this;
+    }
+
+    /**
+     * Guesses the file format.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    private function guessOutputFormatFromFile($path): string
+    {
+        $format = pathinfo($path, PATHINFO_EXTENSION);
+
+        if (!in_array($format, $this->availableFormats)) {
+            $format = $this->defaultFormat;
+        }
+
+        return $format;
     }
 
     /**
@@ -249,22 +410,13 @@ class Lighthouse
     /**
      * Set the flags to pass to the spawned Chrome instance.
      *
-     * @param array|string $flags
+     * @param array|string|null $headers
+     *
+     * @throws JsonException
      *
      * @return $this
      */
-    public function setChromeFlags($flags): self
-    {
-        if (is_array($flags)) {
-            $flags = implode(' ', $flags);
-        }
-
-        $this->setOption('--chrome-flags', "'$flags'");
-
-        return $this;
-    }
-
-    public function setHeaders($headers): self
+    public function setHeaders($headers = null): self
     {
         if (empty($headers)) {
             $this->headers = '';
@@ -272,7 +424,7 @@ class Lighthouse
             return $this;
         }
 
-        $headers = json_encode($headers);
+        $headers = json_encode($headers, JSON_THROW_ON_ERROR);
         $headers = str_replace('"', '\"', $headers);
 
         $this->headers = "--extra-headers \"$headers\"";
@@ -280,137 +432,15 @@ class Lighthouse
         return $this;
     }
 
-    public function setTimeout($timeout): self
+    /**
+     * @param int $timeout
+     *
+     * @return $this
+     */
+    public function setTimeout(int $timeout): self
     {
         $this->timeout = $timeout;
 
         return $this;
-    }
-
-    /**
-     * @param string $option
-     * @param mixed  $value
-     *
-     * @return $this
-     */
-    public function setOption($option, $value = null): self
-    {
-        if (($foundIndex = array_search($option, $this->options)) !== false) {
-            $this->options[$foundIndex] = $option;
-
-            return $this;
-        }
-
-        if ($value === null) {
-            $this->options[] = $option;
-        }
-
-        if ($value !== null) {
-            $this->options[$option] = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $url
-     *
-     * @return string
-     */
-    public function getCommand($url): string
-    {
-        if ($this->configPath === null || $this->config !== null) {
-            $this->buildConfig();
-        }
-
-        $command = array_merge([
-            $this->chromePath,
-            $this->nodePath,
-            $this->lighthousePath,
-            $this->outputFormat,
-            $this->headers,
-            '--quiet',
-            "--config-path={$this->configPath}",
-            $url,
-        ], $this->processOptions());
-
-        return implode(' ', array_filter($command));
-    }
-
-    /**
-     * Enable or disable a category.
-     *
-     * @param $category
-     * @param bool $enable
-     *
-     * @return $this
-     */
-    protected function setCategory($category, $enable): self
-    {
-        $index = array_search($category, $this->categories);
-
-        if ($index !== false) {
-            if ($enable == false) {
-                unset($this->categories[$index]);
-            }
-        } elseif ($enable) {
-            $this->categories[] = $category;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Creates the config file used during the audit.
-     *
-     * @return $this
-     */
-    protected function buildConfig(): self
-    {
-        $config = tmpfile();
-        $this->withConfig(stream_get_meta_data($config)['uri']);
-        $this->config = $config;
-
-        $options = 'module.exports = '.json_encode([
-            'extends'  => 'lighthouse:default',
-            'settings' => [
-                'onlyCategories' => $this->categories,
-            ],
-        ]);
-
-        fwrite($config, $options);
-
-        return $this;
-    }
-
-    /**
-     * Convert the options array to an array that can be used
-     * to construct the command arguments.
-     *
-     * @return array
-     */
-    protected function processOptions(): array
-    {
-        return array_map(function ($value, $option) {
-            return is_numeric($option) ? $value : "$option=$value";
-        }, $this->options, array_keys($this->options));
-    }
-
-    /**
-     * Guesses the file format.
-     *
-     * @param string $path
-     *
-     * @return string
-     */
-    private function guessOutputFormatFromFile($path): string
-    {
-        $format = pathinfo($path, PATHINFO_EXTENSION);
-
-        if (!in_array($format, $this->availableFormats)) {
-            $format = $this->defaultFormat;
-        }
-
-        return $format;
     }
 }

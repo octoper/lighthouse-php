@@ -12,7 +12,7 @@ it('constructs the correct command', function () {
         ->withConfig('/my/config')
         ->getCommand('http://example.com');
 
-    $this->assertEquals(implode(' ', [
+    expect($command)->toEqual(implode(' ', [
         'node',
         'lighthouse',
         '--output=json',
@@ -20,120 +20,120 @@ it('constructs the correct command', function () {
         '--config-path=/my/config',
         'http://example.com',
         "--chrome-flags='--headless --disable-gpu --no-sandbox'",
-    ]), $command);
+    ]));
 });
 
-it('can_set_a_custom_node_binary', function () {
+it('can set a custom node binary', function () {
     $this->lighthouse->setNodePath('/my/node/binary');
 
     $command = $this->lighthouse->getCommand('http://example.com');
 
-    $this->assertStringContainsString('/my/node/binary', $command);
+    expect($command)->toContain('/my/node/binary');
 });
 
-it('can_set_chrome_flags', function () {
+it('can set chrome flags', function () {
     $this->lighthouse->setChromeFlags('--my-flag');
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString("--chrome-flags='--my-flag'", $command);
+    expect($command)->toContain("--chrome-flags='--my-flag'");
 
     $this->lighthouse->setChromeFlags(['--my-flag', '--second-flag']);
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString("--chrome-flags='--my-flag --second-flag'", $command);
+    expect($command)->toContain("--chrome-flags='--my-flag --second-flag'");
 });
 
-it('can_set_the_output_file', function () {
+it('can set the output file', function () {
     $this->lighthouse->setOutput('/tmp/report.json');
 
     $command = $this->lighthouse->getCommand('http://example.com');
 
-    $this->assertStringContainsString('--output-path=/tmp/report.json', $command);
+    expect($command)->toContain('--output-path=/tmp/report.json');
 });
 
-it('can_disable_device_emulation', function () {
+it('can disable device emulation', function () {
     $this->lighthouse->disableDeviceEmulation();
 
     $command = $this->lighthouse->getCommand('http://example.com');
 
-    $this->assertStringContainsString('--disable-device-emulation', $command);
+    expect($command)->toContain('--disable-device-emulation');
 });
 
-it('can_disable_cpu_throttling', function () {
+it('can disable cpu throttling', function () {
     $this->lighthouse->disableCpuThrottling();
 
     $command = $this->lighthouse->getCommand('http://example.com');
 
-    $this->assertStringContainsString('--disable-cpu-throttling', $command);
+    expect($command)->toContain('--disable-cpu-throttling');
 });
 
-it('can_disable_network_throttling', function () {
+it('can disable network throttling', function () {
     $this->lighthouse->disableNetworkThrottling();
 
     $command = $this->lighthouse->getCommand('http://example.com');
 
-    $this->assertStringContainsString('--disable-network-throttling', $command);
+    expect($command)->toContain('--disable-network-throttling');
 });
 
 it('can guess the output format from the file extension', function () {
     $this->lighthouse->setOutput('/tmp/report.json');
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString('--output=json', $command);
-    $this->assertStringNotContainsString('--output=html', $command);
+    expect($command)->toContain('--output=json');
+    expect($command)->not()->toContain('--output=html');
 
     $this->lighthouse->setOutput('/tmp/report.html');
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString('--output=html', $command);
-    $this->assertStringNotContainsString('--output=json', $command);
+    expect($command)->toContain('--output=html');
+    expect($command)->not()->toContain('--output=json');
 
     $this->lighthouse->setOutput('/tmp/report.md');
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString('--output=json', $command);
-    $this->assertStringNotContainsString('--output=html', $command);
+    expect($command)->toContain('--output=json');
+    expect($command)->not()->toContain('--output=html');
 
     $this->lighthouse->setOutput('/tmp/report');
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString('--output=json', $command);
-    $this->assertStringNotContainsString('--output=html', $command);
+    expect($command)->toContain('--output=json');
+    expect($command)->not()->toContain('--output=html');
 });
 
-it('can_override_the_output_format', function () {
+it('can override the output format', function () {
     $this->lighthouse->setOutput('/tmp/report.json', 'html');
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString('--output=html', $command);
-    $this->assertStringNotContainsString('--output=json', $command);
+    expect($command)->toContain('--output=html');
+    expect($command)->not()->toContain('--output=json');
 
     $this->lighthouse->setOutput('/tmp/report.md', ['html', 'json']);
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString('--output=html', $command);
-    $this->assertStringContainsString('--output=json', $command);
+    expect($command)->toContain('--output=html');
+    expect($command)->toContain('--output=json');
 
     $this->lighthouse->setOutput('/tmp/report.md', ['html', 'json', 'md']);
     $command = $this->lighthouse->getCommand('http://example.com');
-    $this->assertStringContainsString('--output=html', $command);
-    $this->assertStringContainsString('--output=json', $command);
-    $this->assertStringNotContainsString('--output=md', $command);
+    expect($command)->toContain('--output=html');
+    expect($command)->toContain('--output=json');
+    expect($command)->not()->toContain('--output=md');
 });
 
-it('cannot_add_the_same_category_multiple_times', function ($category, $method = null) {
+it('cannot add the same category multiple times', function ($category, $method = null) {
     $method = $method ?? $category;
     $lighthouse = new MockLighthouse();
 
     $lighthouse->$method();
     $lighthouse->$method();
-    $this->assertEquals(1, array_count_values($lighthouse->getCategories())[$category]);
+    expect(array_count_values($lighthouse->getCategories())[$category])->toEqual(1);
 })->with('reportCategories', 'emptyHeaders');
 
-it('can_disable_a_category', function ($category, $method = null) {
+it('can disable a category', function ($category, $method = null) {
     $method = $method ?? $category;
     $lighthouse = new MockLighthouse();
 
     $lighthouse->$method();
-    $this->assertContains($category, $lighthouse->getCategories());
+    expect($lighthouse->getCategories())->toContain($category);
 
     $lighthouse->$method(false);
-    $this->assertNotContains($category, $lighthouse->getCategories());
+    expect($lighthouse->getCategories())->not()->toContain($category);
 })->with('reportCategories', 'emptyHeaders');
 
-it('can_set_the_headers_using_an_array', function () {
+it('can set the headers using an array', function () {
     $lighthouse = new MockLighthouse();
 
     $lighthouse->setHeaders([
@@ -141,15 +141,16 @@ it('can_set_the_headers_using_an_array', function () {
         'Authorization' => 'Bearer: ring',
     ]);
 
-    $this->assertStringContainsString('--extra-headers "{\"Cookie\":\"monster=blue\",\"Authorization\":\"Bearer: ring\"}"', $lighthouse->getCommand(''));
+    expect($lighthouse->getCommand(''))
+        ->toContain('--extra-headers "{\"Cookie\":\"monster=blue\",\"Authorization\":\"Bearer: ring\"}"');
 });
 
-it('does_not_pass_headers_when_empty', function () {
+it('does not pass headers when empty', function () {
     $lighthouse = new MockLighthouse();
 
     $lighthouse->setHeaders(['Cookie' => 'monster=blue']);
-    $this->assertStringContainsString('--extra-headers', $lighthouse->getCommand(''));
+    expect($lighthouse->getCommand(''))->toContain('--extra-headers');
 
     $lighthouse->setHeaders([]);
-    $this->assertStringNotContainsString('--extra-headers', $lighthouse->getCommand(''));
+    expect($lighthouse->getCommand(''))->not()->toContain('--extra-headers');
 });
